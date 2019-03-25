@@ -5,7 +5,8 @@ module OntraportApi
         'get_object'                 => [:get,     '/object'],
         'new_object'                 => [:post,    '/objects'],
         'update_object'              => [:put,     '/objects'],
-        'get_objects'                => [:get,     '/objects']
+        'get_objects'                => [:get,     '/objects'],
+        'get_objects_info'           => [:get,     '/objects/getInfo']
       }
 
       def get_object(id, object_id)
@@ -29,6 +30,11 @@ module OntraportApi
         }
         payload = default_conditions.merge(conditions)
         query_objects(payload, object_id)
+      end
+
+      def get_objects_info(conditions = {}, object_id)
+        conditions = { condition: conditions } if conditions.is_a? String
+        query_objects(conditions, object_id)
       end
 
       def query_objects(payload, object_id)
