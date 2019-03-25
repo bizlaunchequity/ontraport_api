@@ -7,8 +7,9 @@ module OntraportApi
         'new_tag'     => [:post,    '/objects'],
       }
 
-      def get_tags(condition = '')
-        query_tags({ condition: condition })
+      def get_tags(conditions = {})
+        conditions = { condition: conditions } if conditions.is_a? String
+        query_tags(conditions)
       end
 
       def new_tag(tag_name)
