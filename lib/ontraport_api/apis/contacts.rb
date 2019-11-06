@@ -29,7 +29,7 @@ module OntraportApi
       end
 
       def add_sequences_to_contact(id, sequence_ids)
-        sequence_ids = convert_to_string(sequence_ids, '*/*')
+        sequence_ids = convert_array_to_string(sequence_ids, '*/*')
         query_contacts(id: id, updateSequence: "*/*#{sequence_ids}*/*")
       end
 
@@ -51,7 +51,7 @@ module OntraportApi
         conditions = default_conditions.merge(conditions)
 
         payload = conditions.merge(
-          add_list: convert_to_string(tag_ids)
+          add_list: convert_array_to_string(tag_ids)
         )
         query_contacts(payload)
       end
@@ -64,7 +64,7 @@ module OntraportApi
         conditions = default_conditions.merge(conditions)
 
         payload = conditions.merge(
-          remove_list: convert_to_string(tag_ids)
+          remove_list: convert_array_to_string(tag_ids)
         )
         query_contacts(payload)
       end
