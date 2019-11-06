@@ -1,4 +1,5 @@
 require 'httparty'
+require_relative 'apis/campaigns'
 require_relative 'apis/contacts'
 require_relative 'apis/forms'
 require_relative 'apis/messages'
@@ -14,6 +15,7 @@ module OntraportApi
     include HTTParty
     base_uri 'https://api.ontraport.com/1'
 
+    include APIs::Campaigns
     include APIs::Contacts
     include APIs::Products
     include APIs::Forms

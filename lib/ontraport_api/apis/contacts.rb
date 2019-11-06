@@ -11,11 +11,13 @@ module OntraportApi
         'contact_fields'              => [:get,     '/objects/meta'],
         'add_tags_to_contact'         => [:put,     '/objects/tag'],
         'add_tags_to_contacts'        => [:put,     '/objects/tag'],
-        'remove_tags_from_contacts'   => [:delete,  '/objects/tag']
-      }
+        'remove_tags_from_contacts'   => [:delete,  '/objects/tag'],
+        'subscribe_contacts_to_campaigns'   => [:put,  '/objects/subscribe'],
+        'unsubscribe_contacts_from_campaigns'   => [:delete,  '/objects/subscribe']
+      }.freeze
 
       def get_contact(id)
-        query_contacts({id: id})
+        query_contacts(id: id)
       end
 
       def new_contact(payload = {})
@@ -27,8 +29,8 @@ module OntraportApi
       end
 
       def add_sequences_to_contact(id, sequence_ids)
-        sequence_ids = sequence_ids.is_a?(Array) ? sequence_ids.join('*/*') : sequence_ids
-        query_contacts({ id: id, updateSequence: "*/*#{sequence_ids}*/*" })
+        sequence_ids = convert_to_string(sequence_ids, '*/*')
+        query_contacts(id: id, updateSequence: "*/*#{sequence_ids}*/*")
       end
 
       def add_tags_to_contact(id, tag_ids)
@@ -48,8 +50,10 @@ module OntraportApi
         }
         conditions = default_conditions.merge(conditions)
 
-        tag_ids = tag_ids.is_a?(Array) ? tag_ids.join(',') : tag_ids
-        query_contacts(conditions.merge({ add_list: tag_ids }))
+        payload = conditions.merge(
+          add_list: convert_to_string(tag_ids)
+        )
+        query_contacts(payload)
       end
 
       def remove_tags_from_contacts(tag_ids, conditions = {})
@@ -59,8 +63,10 @@ module OntraportApi
         }
         conditions = default_conditions.merge(conditions)
 
-        tag_ids = tag_ids.is_a?(Array) ? tag_ids.join(',') : tag_ids
-        query_contacts(conditions.merge({ remove_list: tag_ids }))
+        payload = conditions.merge(
+          remove_list: convert_to_string(tag_ids)
+        )
+        query_contacts(payload)
       end
 
       def get_contacts(conditions = {})
@@ -74,11 +80,42 @@ module OntraportApi
         query_contacts(payload)
       end
 
-      def query_contacts(payload)
-        method, path = CONTACTS_API_METHODS_AND_PATHS[caller[0][/`.*'/][1..-2]]
-        query(method, path, payload.merge({ objectID: CONTACTS_OBJECT_ID }))
+      def subscribe_contacts_to_campaigns(campaigns_ids, contacts_ids, conditions = {})
+        conditions = { condition: conditions } if conditions.is_a? String
+        default_conditions = {
+          performAll: true,
+          sub_type: 'CAMPAIGN'
+        }
+        conditions = default_conditions.merge(conditions)
+        payload = conditions.merge(
+          add_list: convert_array_to_string(campaigns_ids),
+          ids: convert_array_to_string(contacts_ids)
+        )
+        query_contacts(payload)
       end
 
+      def unsubscribe_contacts_from_campaigns(campaigns_ids, contacts_ids, conditions = {})
+        conditions = { condition: conditions } if conditions.is_a? String
+        default_conditions = {
+          performAll: true,
+          sub_type: 'CAMPAIGN'
+        }
+        conditions = default_conditions.merge(conditions)
+        payload = conditions.merge(
+          remove_list: convert_array_to_string(campaigns_ids),
+          ids: convert_array_to_string(contacts_ids)
+        )
+        query_contacts(payload)
+      end
+
+      def query_contacts(payload)
+        method, path = CONTACTS_API_METHODS_AND_PATHS[caller[0][/`.*'/][1..-2]]
+        query(method, path, payload.merge(objectID: CONTACTS_OBJECT_ID))
+      end
+
+      def convert_array_to_string(array, join_by = ',')
+        array.is_a?(Array) ? array.join(join_by) : array
+      end
     end
   end
 end
