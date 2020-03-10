@@ -5,6 +5,7 @@ module OntraportApi
       CONTACTS_API_METHODS_AND_PATHS = {
         'get_contact'                 => [:get,     '/object'],
         'new_contact'                 => [:post,    '/objects'],
+        'save_or_update_contact'      => [:post,    '/objects/saveorupdate'],
         'update_contact'              => [:put,     '/objects'],
         'add_sequences_to_contact'    => [:put,     '/objects'],
         'get_contacts'                => [:get,     '/objects'],
@@ -21,6 +22,10 @@ module OntraportApi
       end
 
       def new_contact(payload = {})
+        query_contacts(payload)
+      end
+
+      def save_or_update_contact(payload = {})
         query_contacts(payload)
       end
 
