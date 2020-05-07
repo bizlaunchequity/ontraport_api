@@ -14,7 +14,9 @@ module OntraportApi
         'add_tags_to_contacts'        => [:put,     '/objects/tag'],
         'remove_tags_from_contacts'   => [:delete,  '/objects/tag'],
         'subscribe_contacts_to_campaigns'   => [:put,  '/objects/subscribe'],
-        'unsubscribe_contacts_from_campaigns'   => [:delete,  '/objects/subscribe']
+        'unsubscribe_contacts_from_campaigns'   => [:delete,  '/objects/subscribe'],
+        'get_custom_fields'           => [:get, '/objects/fieldeditor'],
+        'create_custom_fields'        => [:post, '/objects/fieldeditor']
       }.freeze
 
       def get_contact(id)
@@ -111,6 +113,14 @@ module OntraportApi
           ids: convert_array_to_string(contacts_ids)
         )
         query_contacts(payload)
+      end
+
+      def get_custom_fields(params = {})
+        query_contacts(params)
+      end
+
+      def create_custom_fields(params)
+        query_contacts(params)
       end
 
       def query_contacts(payload)
