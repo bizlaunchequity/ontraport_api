@@ -75,7 +75,10 @@ module OntraportApi
 
       raise InvalidAppIdOrApiKey if response.code == 401
 
-      response.parsed_response['data']
+      OpenStruct.new(
+        parsed_response: response.parsed_response['data'],
+        original_response: response
+      )
     rescue JSON::ParserError => e
       {
         'error'   => true,
