@@ -39,6 +39,15 @@ module OntraportApi
       end
     end
 
+    class UnknownError < StandardError
+      attr_reader :response
+
+      def initialize(response)
+        @response = response
+        super "Unknown error. Check data for more info"
+      end
+    end
+
     def initialize(app_id, api_key)
       raise InvalidAppIdOrApiKey if [app_id, api_key].any? { |w| w !~ blank_regex }
       @app_id = app_id
@@ -75,10 +84,9 @@ module OntraportApi
 
       raise InvalidAppIdOrApiKey if response.code == 401
 
-      OpenStruct.new(
-        parsed_response: response.parsed_response['data'],
-        original_response: response
-      )
+      raise UnknownError.new(response) if response.code > 400
+
+      response.parsed_response['data']
     rescue JSON::ParserError => e
       {
         'error'   => true,
